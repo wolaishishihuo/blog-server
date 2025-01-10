@@ -18,9 +18,11 @@ model User {
   email     String     @unique
   username  String     @unique
   password  String
+  nickname  String?
+  avatar    String?
   createdAt DateTime   @default(now())
   updatedAt DateTime   @updatedAt
-  UserRole  UserRole[]
+  userRole  UserRole[]
 
   @@map("users")
 }
@@ -28,10 +30,11 @@ model User {
 model Role {
   id             Int              @id @default(autoincrement())
   name           String           @unique
+  description    String
   createdAt      DateTime         @default(now())
   updatedAt      DateTime         @updatedAt
-  UserRole       UserRole[]
-  RolePermission RolePermission[]
+  userRole       UserRole[]
+  rolePermission RolePermission[]
 
   @@map("roles")
 }
@@ -39,8 +42,8 @@ model Role {
 model UserRole {
   userId Int
   roleId Int
-  User   User @relation(fields: [userId], references: [id], onDelete: Cascade)
-  Role   Role @relation(fields: [roleId], references: [id], onDelete: Cascade)
+  user   User @relation(fields: [userId], references: [id], onDelete: Cascade)
+  role   Role @relation(fields: [roleId], references: [id], onDelete: Cascade)
 
   @@id([userId, roleId])
   @@map("user_roles")
@@ -49,9 +52,10 @@ model UserRole {
 model Permission {
   id             Int              @id @default(autoincrement())
   name           String           @unique
+  description    String
   createdAt      DateTime         @default(now())
   updatedAt      DateTime         @updatedAt
-  RolePermission RolePermission[]
+  rolePermission RolePermission[]
 
   @@map("permissions")
 }
@@ -59,8 +63,8 @@ model Permission {
 model RolePermission {
   roleId       Int
   permissionId Int
-  Role         Role       @relation(fields: [roleId], references: [id], onDelete: Cascade)
-  Permission   Permission @relation(fields: [permissionId], references: [id], onDelete: Cascade)
+  role         Role       @relation(fields: [roleId], references: [id], onDelete: Cascade)
+  permission   Permission @relation(fields: [permissionId], references: [id], onDelete: Cascade)
 
   @@id([roleId, permissionId])
   @@map("role_permissions")
