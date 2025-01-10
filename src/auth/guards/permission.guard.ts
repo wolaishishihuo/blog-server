@@ -1,4 +1,5 @@
 import { PrismaService } from '@/prisma/prisma.service';
+import { RedisService } from '@/redis/redis.service';
 import { CanActivate, ExecutionContext, Injectable } from '@nestjs/common';
 import { Reflector } from '@nestjs/core';
 
@@ -8,7 +9,8 @@ import { Reflector } from '@nestjs/core';
 export class PermissionGuard implements CanActivate {
     constructor(
         private readonly reflector: Reflector,
-        private readonly prisma: PrismaService
+        private readonly prisma: PrismaService,
+        private readonly redis: RedisService
     ) {}
 
     async canActivate(context: ExecutionContext): Promise<boolean> {
@@ -25,25 +27,28 @@ export class PermissionGuard implements CanActivate {
         if (!requiredPermissions?.length) {
             return true;
         }
+        const redisKey = `${user.username}_${user.id}_permissions`;
+        let userPermissions = await this.redis.listGet(redisKey);
+        console.log(userPermissions);
 
-        // 优化数据库查询
-        const rolePermissions = await this.prisma.rolePermission.findMany({
-            where: {
-                roleId: {
-                    in: roleIds
-                }
-            },
-            select: {
-                permission: {
-                    select: {
-                        name: true
+        if (userPermissions.length === 0) {
+            const rolePermissions = await this.prisma.rolePermission.findMany({
+                where: {
+                    roleId: {
+                        in: roleIds
+                    }
+                },
+                select: {
+                    permission: {
+                        select: {
+                            name: true
+                        }
                     }
                 }
-            }
-        });
-
-        const userPermissions = new Set(rolePermissions.map((rp) => rp.permission.name));
-        // 检查是否具有所有必需的权限
-        return requiredPermissions.every((permission) => userPermissions.has(permission));
+            });
+            userPermissions = rolePermissions.map((rp) => rp.permission.name);
+            await this.redis.listSet(redisKey, userPermissions);
+        }
+        return requiredPermissions.every((permission) => userPermissions.includes(permission));
     }
 }

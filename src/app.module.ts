@@ -5,13 +5,15 @@ import { ConfigModule } from '@nestjs/config';
 import config from './config';
 import { envFilePath } from './utils/env';
 import { PrismaModule } from './prisma/prisma.module';
+import { RedisModule } from './redis/redis.module';
 
 @Module({
     imports: [
         AuthModule,
         UserModule,
         PrismaModule,
-        ConfigModule.forRoot({ isGlobal: true, load: [...config], envFilePath: envFilePath })
+        ConfigModule.forRoot({ isGlobal: true, load: [...config], envFilePath: envFilePath }),
+        RedisModule
     ]
 })
 export class AppModule {}

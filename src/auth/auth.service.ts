@@ -72,7 +72,7 @@ export class AuthService {
         const payload = {
             username: foundUser.username,
             email: foundUser.email,
-            id: foundUser.id
+            sub: foundUser.id
         };
         const token = await this.getToken(payload);
         return {
@@ -84,7 +84,7 @@ export class AuthService {
         };
     }
 
-    async getToken(payload: { username: string; email: string; id: number }) {
+    async getToken(payload: { username: string; email: string; sub: number }) {
         return await this.jwtService.signAsync(payload);
     }
 }

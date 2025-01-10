@@ -17,6 +17,8 @@ export class JwtStrategy extends PassportStrategy(Strategy, 'jwt') {
     }
 
     async validate({ sub: id }) {
+        console.log(id, 'id');
+
         const user = await this.prisma.user.findFirst({
             where: { id },
             select: defaultUserSelect
