@@ -9,4 +9,7 @@ export class RegisterAuthDto extends PartialType(LoginAuthDto) {
 
     @IsNotEmpty({ message: '昵称不能为空' })
     nickname: string;
+
+    @IsNotEmpty({ message: '确认密码不能为空' })
+    confirmPassword: string;
 }
