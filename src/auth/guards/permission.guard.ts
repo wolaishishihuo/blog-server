@@ -1,3 +1,4 @@
+import { ActionTypeUnion } from '@/enum/permission';
 import { PrismaService } from '@/prisma/prisma.service';
 import { RedisService } from '@/redis/redis.service';
 import { CanActivate, ExecutionContext, Injectable } from '@nestjs/common';
@@ -18,7 +19,7 @@ export class PermissionGuard implements CanActivate {
         const user = request.user;
         const roleIds = user.roles.map((role) => role.id);
 
-        const requiredPermissions = this.reflector.getAllAndOverride<string[]>('permissions', [
+        const requiredPermissions = this.reflector.getAllAndOverride<ActionTypeUnion[]>('permissions', [
             context.getHandler(),
             context.getClass()
         ]);
@@ -29,7 +30,6 @@ export class PermissionGuard implements CanActivate {
         }
         const redisKey = `${user.username}_${user.id}_permissions`;
         let userPermissions = await this.redis.listGet(redisKey);
-        console.log(userPermissions);
 
         if (userPermissions.length === 0) {
             const rolePermissions = await this.prisma.rolePermission.findMany({
@@ -47,7 +47,7 @@ export class PermissionGuard implements CanActivate {
                 }
             });
             userPermissions = rolePermissions.map((rp) => rp.permission.name);
-            await this.redis.listSet(redisKey, userPermissions);
+            await this.redis.listSet(redisKey, userPermissions, 60 * 60 * 24);
         }
         return requiredPermissions.every((permission) => userPermissions.includes(permission));
     }
