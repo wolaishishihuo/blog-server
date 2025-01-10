@@ -8,7 +8,7 @@ export const ActionType = {
 // 定义角色类型
 export const RoleType = {
     USER: 'user',
-    ROLE: 'role',
+    OPERATOR: 'operator',
     ADMIN: 'admin'
 } as const;
 
@@ -17,9 +17,9 @@ export const Permissions = {
     // User permissions
     USER_READ: `${RoleType.USER}:${ActionType.READ}`,
 
-    // Role permissions
-    ROLE_READ: `${RoleType.ROLE}:${ActionType.READ}`,
-    ROLE_WRITE: `${RoleType.ROLE}:${ActionType.WRITE}`,
+    // Operator permissions
+    OPERATOR_READ: `${RoleType.OPERATOR}:${ActionType.READ}`,
+    OPERATOR_WRITE: `${RoleType.OPERATOR}:${ActionType.WRITE}`,
 
     // Admin permissions
     ADMIN_READ: `${RoleType.ADMIN}:${ActionType.READ}`,

@@ -10,18 +10,16 @@ const PermissionActionMap = {
 };
 const ResourceMap = {
     USER: 'user',
-    ROLE: 'role',
-    SYSTEM: 'system'
+    OPERATOR: 'operator',
+    ADMIN: 'admin'
 };
 
 type PermissionAction = (typeof PermissionActionMap)[keyof typeof PermissionActionMap];
-type Resource = (typeof ResourceMap)[keyof typeof ResourceMap];
 
-// 定义每个资源允许的操作权限
 const ResourcePermissions = {
-    [ResourceMap.USER]: [PermissionActionMap.READ],
-    [ResourceMap.ROLE]: [PermissionActionMap.READ, PermissionActionMap.WRITE],
-    [ResourceMap.SYSTEM]: [PermissionActionMap.READ, PermissionActionMap.WRITE, PermissionActionMap.MANAGE]
+    [ResourceMap.ADMIN]: [PermissionActionMap.READ, PermissionActionMap.WRITE, PermissionActionMap.MANAGE],
+    [ResourceMap.OPERATOR]: [PermissionActionMap.READ, PermissionActionMap.WRITE],
+    [ResourceMap.USER]: [PermissionActionMap.READ]
 };
 
 // 简化的角色配置
@@ -29,25 +27,25 @@ const roleConfigs = [
     {
         name: 'admin',
         description: '超级管理员',
-        permissionFilter: (resource: Resource, action: PermissionAction) => {
+        permissionFilter: (action: PermissionAction) => {
             // 超级管理员可以执行所有允许的操作
-            return ResourcePermissions[resource].includes(action);
+            return ResourcePermissions[ResourceMap.ADMIN].includes(action);
         }
     },
     {
         name: 'operator',
         description: '操作员',
-        permissionFilter: (resource: Resource, action: PermissionAction) => {
+        permissionFilter: (action: PermissionAction) => {
             // 操作员可以读写所有资源，但不能管理
-            return resource === ResourceMap.ROLE && ResourcePermissions[resource].includes(action);
+            return ResourcePermissions[ResourceMap.OPERATOR].includes(action);
         }
     },
     {
         name: 'user',
         description: '普通用户',
-        permissionFilter: (resource: Resource, action: PermissionAction) => {
+        permissionFilter: (action: PermissionAction) => {
             // 普通用户只能读取
-            return resource === ResourceMap.USER && ResourcePermissions[resource].includes(action);
+            return ResourcePermissions[ResourceMap.USER].includes(action);
         }
     }
 ] as const;
@@ -64,46 +62,43 @@ async function main() {
 
     // 创建权限
     await prisma.permission.createMany({
-        data: Object.entries(ResourcePermissions).flatMap(([resource, allowedActions]) =>
-            allowedActions.map((action) => ({
-                name: `${resource}:${action}`,
-                description: `Permission to ${action} ${resource}`
-            }))
-        )
+        data: Object.entries(PermissionActionMap).map(([_, name]) => ({
+            name,
+            description: `Permission to ${name}`
+        }))
     });
 
     // 创建角色
-    const roles = await Promise.all(
-        roleConfigs.map((config) =>
-            prisma.role.create({
-                data: {
-                    name: config.name,
-                    description: config.description
-                }
-            })
-        )
-    );
+    const roles = [];
+    for (const config of roleConfigs) {
+        const role = await prisma.role.create({
+            data: {
+                name: config.name,
+                description: config.description
+            }
+        });
+        roles.push(role);
+    }
 
     // 获取所有权限并创建角色权限关联
     const allPermissions = await prisma.permission.findMany();
-    await Promise.all(
-        roles.map((role, index) => {
-            const roleConfig = roleConfigs[index];
-            const rolePermissions = allPermissions
-                .filter((permission) => {
-                    const [resource, action] = permission.name.split(':') as [Resource, PermissionAction];
-                    return roleConfig.permissionFilter(resource, action);
-                })
-                .map((permission) => ({
-                    roleId: role.id,
-                    permissionId: permission.id
-                }));
+    for (let index = 0; index < roles.length; index++) {
+        const role = roles[index];
+        const roleConfig = roleConfigs[index];
+        const rolePermissions = allPermissions
+            .filter((permission) => {
+                const action = permission.name as PermissionAction;
+                return roleConfig.permissionFilter(action);
+            })
+            .map((permission) => ({
+                roleId: role.id,
+                permissionId: permission.id
+            }));
 
-            return prisma.rolePermission.createMany({
-                data: rolePermissions
-            });
-        })
-    );
+        await prisma.rolePermission.createMany({
+            data: rolePermissions
+        });
+    }
 
     // 创建默认用户
     const defaultUsers = [
