@@ -5,7 +5,6 @@ import { ConfigService } from '@nestjs/config';
 export class PrismaService extends PrismaClient implements OnModuleInit, OnModuleDestroy {
     constructor(readonly configService: ConfigService) {
         const logLevel = configService.get('appConfig.logLevel');
-        console.log(logLevel);
         super({
             log: (() => {
                 switch (logLevel) {

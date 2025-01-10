@@ -1,10 +1,9 @@
-import { Strategy } from 'passport-local';
 import { PassportStrategy } from '@nestjs/passport';
 import { Injectable, UnauthorizedException } from '@nestjs/common';
-import { ExtractJwt } from 'passport-jwt';
+import { ExtractJwt, Strategy } from 'passport-jwt';
 import { ConfigService } from '@nestjs/config';
 import { PrismaService } from '@/prisma/prisma.service';
-
+import { defaultUserSelect } from '@/constants/user';
 @Injectable()
 export class JwtStrategy extends PassportStrategy(Strategy, 'jwt') {
     constructor(
@@ -18,15 +17,17 @@ export class JwtStrategy extends PassportStrategy(Strategy, 'jwt') {
     }
 
     async validate({ sub: id }) {
-        console.log(id);
-        // const user = await this.prisma.user.findFirst({
-        //     where: { id }
-        // });
-        // console.log(user);
-
-        // if (!user) {
-        //     throw new UnauthorizedException();
-        // }
-        // return user;
+        const user = await this.prisma.user.findFirst({
+            where: { id },
+            select: defaultUserSelect
+        });
+        if (!user) {
+            throw new UnauthorizedException();
+        }
+        return {
+            ...user,
+            roles: user.userRole.map((role) => role.role),
+            userRole: undefined
+        };
     }
 }

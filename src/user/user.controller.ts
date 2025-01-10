@@ -1,7 +1,7 @@
-import { Controller, Get, UseGuards } from '@nestjs/common';
+import { Controller, Get, Req, UseGuards } from '@nestjs/common';
 import { UserService } from './user.service';
 import { AuthGuard } from '@nestjs/passport';
-
+import { Request } from 'express';
 @Controller('user')
 export class UserController {
     constructor(private readonly userService: UserService) {}
@@ -9,8 +9,8 @@ export class UserController {
     // 获取当前登录人信息
     @Get('findUser')
     @UseGuards(AuthGuard('jwt'))
-    findUser() {
-        return 1;
-        // return this.userService.findUser(body);
+    findUser(@Req() req: Request) {
+        // return this.userService.findUser(req.user);
+        return req.user;
     }
 }

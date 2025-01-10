@@ -12,10 +12,14 @@ import { JwtStrategy } from './strategy/jwt.strategy';
         JwtModule.registerAsync({
             imports: [ConfigModule],
             inject: [ConfigService],
-            useFactory: (configService: ConfigService) => ({
-                secret: configService.get('appConfig.jwtSecret'),
-                signOptions: { expiresIn: configService.get('appConfig.jwtExpirationTime') }
-            })
+            useFactory: (configService: ConfigService) => {
+                console.log(configService.get('appConfig.jwtSecret'));
+                console.log(configService.get('appConfig.jwtExpirationTime'));
+                return {
+                    secret: configService.get('appConfig.jwtSecret'),
+                    signOptions: { expiresIn: configService.get('appConfig.jwtExpirationTime') }
+                };
+            }
         })
     ]
 })
