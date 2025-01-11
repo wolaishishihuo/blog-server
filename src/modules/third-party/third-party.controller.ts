@@ -23,4 +23,14 @@ export class ThirdPartyController {
         );
         return weatherInfo.data.lives[0];
     }
+
+    @Get('githubCommits')
+    async getGithubCommits(@Query('per_page') per_page: number, @Query('page') page: number) {
+        const response = await firstValueFrom(
+            this.httpService.get(
+                `${this.config.githubApiBaseUrl}/${this.config.githubOwner}/${this.config.githubRepo}/commits?per_page=${per_page}&page=${page}`
+            )
+        );
+        return response.data;
+    }
 }

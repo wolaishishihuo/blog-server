@@ -6,7 +6,10 @@ const appConfig = registerAs('appConfig', () => ({
     jwtExpirationTime: process.env.JWT_EXPIRATION_TIME,
     jwtRefreshExpirationTime: process.env.JWT_REFRESH_EXPIRATION_TIME,
     logLevel: process.env.LOG_LEVEL || 'info',
-    amapKey: process.env.AMAP_KEY
+    amapKey: process.env.AMAP_KEY,
+    githubOwner: process.env.GITHUB_OWNER,
+    githubRepo: process.env.GITHUB_REPO,
+    githubApiBaseUrl: process.env.GITHUB_API_BASE_URL
 }));
 
 export default appConfig;
