@@ -18,7 +18,8 @@ export class PermissionGuard implements CanActivate {
     async canActivate(context: ExecutionContext): Promise<boolean> {
         const request = context.switchToHttp().getRequest();
         const user = request.user;
-        const roleIds = user.roles.map((role) => role.id);
+        const redisKey = `${user.username}_${user.id}_permissions`;
+        let userPermissions = await this.redis.listGet(redisKey);
 
         const requiredPermissions = this.reflector.getAllAndOverride<ActionTypeUnion[]>('permissions', [
             context.getHandler(),
@@ -28,14 +29,21 @@ export class PermissionGuard implements CanActivate {
         if (!requiredPermissions?.length) {
             return true;
         }
-        const redisKey = `${user.username}_${user.id}_permissions`;
-        let userPermissions = await this.redis.listGet(redisKey);
 
         if (userPermissions.length === 0) {
+            const roleIds = await this.prisma.userRole.findMany({
+                where: {
+                    userId: user.id
+                },
+                select: {
+                    roleId: true
+                }
+            });
+
             const rolePermissions = await this.prisma.rolePermission.findMany({
                 where: {
                     roleId: {
-                        in: roleIds
+                        in: roleIds.map((role) => role.roleId)
                     }
                 },
                 select: {

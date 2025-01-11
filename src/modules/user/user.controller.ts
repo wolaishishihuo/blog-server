@@ -1,8 +1,9 @@
 import { Controller, Get, Req } from '@nestjs/common';
 import { UserService } from './user.service';
-import { Request } from 'express';
 import { Auth } from '@/modules/auth/decorators/auth.decorator';
 import { PermissionActionMap } from '@/enum/permission';
+import { UserInfo } from './decorators/user.decorator';
+import { User } from '@prisma/client';
 
 @Controller('user')
 export class UserController {
@@ -11,7 +12,13 @@ export class UserController {
     // 获取当前登录人信息
     @Get('findUser')
     @Auth([PermissionActionMap.READ])
-    findUser(@Req() req: Request) {
-        return req.user;
+    findUser(@UserInfo() user: User) {
+        return user;
+    }
+
+    @Get('getTodoList')
+    @Auth([PermissionActionMap.READ])
+    getTodoList(@UserInfo('id') userId: number) {
+        return this.userService.getTodoList(userId);
     }
 }
