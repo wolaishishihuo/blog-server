@@ -43,4 +43,10 @@ export class UserService {
             }
         });
     }
+
+    async deleteTodo(id: number) {
+        return await this.prisma.todo.delete({
+            where: { id }
+        });
+    }
 }

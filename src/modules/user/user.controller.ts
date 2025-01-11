@@ -38,4 +38,11 @@ export class UserController {
     updateTodo(@Body() todo: UpdateTodoDto) {
         return this.userService.updateTodo(todo);
     }
+
+    // 删除待办事项
+    @Post('deleteTodo')
+    @Auth([PermissionActionMap.WRITE])
+    deleteTodo(@Body('id') id: number) {
+        return this.userService.deleteTodo(id);
+    }
 }
