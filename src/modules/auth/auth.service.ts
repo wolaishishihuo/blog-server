@@ -1,10 +1,12 @@
-import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
+import { HttpException, HttpStatus, Inject, Injectable } from '@nestjs/common';
 import { RegisterAuthDto } from './dto/register-auth.dto';
 import { PrismaService } from '@/modules/prisma/prisma.service';
 import * as argon2 from 'argon2';
 import { UserRole } from '@/enum/user';
 import { LoginAuthDto } from './dto/login-auth.dto';
 import { JwtService } from '@nestjs/jwt';
+import { ConfigService, ConfigType } from '@nestjs/config';
+import appConfig from '@/config/app';
 
 @Injectable()
 export class AuthService {
@@ -12,6 +14,9 @@ export class AuthService {
         private readonly prisma: PrismaService,
         private readonly jwtService: JwtService
     ) {}
+
+    @Inject(appConfig.KEY)
+    private readonly config: ConfigType<typeof appConfig>;
 
     async register(registerAuthDto: RegisterAuthDto) {
         const { username, password, email, nickname, confirmPassword } = registerAuthDto;
@@ -75,16 +80,38 @@ export class AuthService {
         }
         const payload = {
             username: foundUser.username,
-            email: foundUser.email,
             sub: foundUser.id
         };
-        const token = await this.getToken(payload);
+        return await this.getToken(payload);
+    }
+
+    async getToken(payload) {
+        const accessToken = await this.jwtService.signAsync(
+            {
+                username: payload.username,
+                sub: payload.sub
+            },
+            {
+                expiresIn: this.config.jwtExpirationTime
+            }
+        );
+        const refreshToken = await this.jwtService.signAsync(
+            {
+                username: payload.username,
+                sub: payload.sub
+            },
+            {
+                expiresIn: this.config.jwtRefreshExpirationTime
+            }
+        );
         return {
-            accessToken: token
+            accessToken,
+            refreshToken
         };
     }
 
-    async getToken(payload: { username: string; email: string; sub: number }) {
-        return await this.jwtService.signAsync(payload);
+    async refreshToken(refreshToken: string) {
+        const payload = await this.jwtService.verifyAsync(refreshToken);
+        return await this.getToken(payload);
     }
 }

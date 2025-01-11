@@ -13,11 +13,8 @@ import { JwtStrategy } from './strategy/jwt.strategy';
             imports: [ConfigModule],
             inject: [ConfigService],
             useFactory: (configService: ConfigService) => {
-                console.log(configService.get('appConfig.jwtSecret'));
-                console.log(configService.get('appConfig.jwtExpirationTime'));
                 return {
-                    secret: configService.get('appConfig.jwtSecret'),
-                    signOptions: { expiresIn: configService.get('appConfig.jwtExpirationTime') }
+                    secret: configService.get('appConfig.jwtSecret')
                 };
             }
         })

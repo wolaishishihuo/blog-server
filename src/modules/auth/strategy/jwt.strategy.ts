@@ -12,13 +12,13 @@ export class JwtStrategy extends PassportStrategy(Strategy, 'jwt') {
     ) {
         super({
             jwtFromRequest: ExtractJwt.fromAuthHeaderAsBearerToken(),
+            // 是否忽略过期时间
+            ignoreExpiration: false,
             secretOrKey: configService.get('appConfig.jwtSecret')
         });
     }
 
     async validate({ sub: id }) {
-        console.log(id, 'id');
-
         const user = await this.prisma.user.findFirst({
             where: { id },
             select: defaultUserSelect
