@@ -9,3 +9,14 @@ export const UserRoleMap = {
     [UserRole.OPERATOR]: 'operator',
     [UserRole.USER]: 'user'
 };
+
+export enum TodoStatus {
+    TODO,
+    DONE
+}
+
+export enum TodoPriority {
+    LOW,
+    MEDIUM,
+    HIGH
+}

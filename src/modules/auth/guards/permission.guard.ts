@@ -39,7 +39,6 @@ export class PermissionGuard implements CanActivate {
                     roleId: true
                 }
             });
-
             const rolePermissions = await this.prisma.rolePermission.findMany({
                 where: {
                     roleId: {

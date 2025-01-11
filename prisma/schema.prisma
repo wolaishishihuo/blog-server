@@ -20,8 +20,8 @@ model User {
   password  String
   nickname  String?
   avatar    String?
-  createdAt DateTime   @default(now())
-  updatedAt DateTime   @updatedAt
+  createdAt DateTime   @default(now()) @db.DateTime(0)
+  updatedAt DateTime   @updatedAt @db.DateTime(0)
   userRole  UserRole[]
   todoList  Todo[]
 
@@ -30,11 +30,12 @@ model User {
 
 model Todo {
   id        Int      @id @default(autoincrement())
-  title     String
-  content   String
-  status    String
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+  title     String   @db.VarChar(255)
+  status    Int      @default(0)
+  priority  Int      @default(0)
+  deadline  DateTime @db.DateTime(0)
+  createdAt DateTime @default(now()) @db.DateTime(0)
+  updatedAt DateTime @updatedAt @db.DateTime(0)
   userId    Int
   user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
 
@@ -45,8 +46,8 @@ model Role {
   id             Int              @id @default(autoincrement())
   name           String           @unique
   description    String
-  createdAt      DateTime         @default(now())
-  updatedAt      DateTime         @updatedAt
+  createdAt      DateTime         @default(now()) @db.DateTime(0)
+  updatedAt      DateTime         @updatedAt @db.DateTime(0)
   userRole       UserRole[]
   rolePermission RolePermission[]
 
@@ -67,8 +68,8 @@ model Permission {
   id             Int              @id @default(autoincrement())
   name           String           @unique
   description    String
-  createdAt      DateTime         @default(now())
-  updatedAt      DateTime         @updatedAt
+  createdAt      DateTime         @default(now()) @db.DateTime(0)
+  updatedAt      DateTime         @updatedAt @db.DateTime(0)
   rolePermission RolePermission[]
 
   @@map("permissions")
