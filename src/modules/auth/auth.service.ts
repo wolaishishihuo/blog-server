@@ -105,8 +105,8 @@ export class AuthService {
             }
         );
         return {
-            accessToken,
-            refreshToken
+            access_token: accessToken,
+            refresh_token: refreshToken
         };
     }
 
