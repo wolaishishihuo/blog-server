@@ -7,7 +7,12 @@ import { ResponseFailFilter } from './helper/responseFail.filter';
 async function bootstrap() {
     const app = await NestFactory.create(AppModule);
     app.enableCors();
-    app.useGlobalPipes(new ValidationPipe());
+    app.useGlobalPipes(
+        new ValidationPipe({
+            whitelist: true,
+            transform: true
+        })
+    );
     app.useGlobalInterceptors(new ResponseInterceptor());
     app.useGlobalFilters(new ResponseFailFilter());
     await app.listen(3000);

@@ -12,14 +12,16 @@ export class UserService {
         const todoList = await this.prisma.todo.findMany({
             where: { userId }
         });
-        return todoList.map((todo) => ({
-            ...todo,
-            deadline: formatISOToDate(todo.deadline.toString())
-        }));
+        return todoList
+            .map((todo) => ({
+                ...todo,
+                deadline: formatISOToDate(todo.deadline.toString())
+            }))
+            .sort((a, b) => b.createdAt.getTime() - a.createdAt.getTime());
     }
 
     async createTodo(todo: CreateTodoDto) {
-        return await this.prisma.todo.create({
+        await this.prisma.todo.create({
             data: {
                 title: todo.title,
                 status: todo.status,
@@ -35,7 +37,7 @@ export class UserService {
     }
 
     async updateTodo(todo: UpdateTodoDto) {
-        return await this.prisma.todo.update({
+        await this.prisma.todo.update({
             where: { id: todo.id },
             data: {
                 ...todo,
@@ -45,7 +47,7 @@ export class UserService {
     }
 
     async deleteTodo(id: number) {
-        return await this.prisma.todo.delete({
+        await this.prisma.todo.delete({
             where: { id }
         });
     }

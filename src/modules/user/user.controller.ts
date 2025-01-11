@@ -1,4 +1,4 @@
-import { Body, Controller, Get, Post, Req } from '@nestjs/common';
+import { Body, Controller, Get, Post } from '@nestjs/common';
 import { UserService } from './user.service';
 import { Auth } from '@/modules/auth/decorators/auth.decorator';
 import { PermissionActionMap } from '@/enum/permission';
@@ -43,6 +43,7 @@ export class UserController {
     @Post('deleteTodo')
     @Auth([PermissionActionMap.WRITE])
     deleteTodo(@Body('id') id: number) {
+        console.log(id, 'id');
         return this.userService.deleteTodo(id);
     }
 }
