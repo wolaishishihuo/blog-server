@@ -10,7 +10,7 @@ export class UserController {
 
     // 获取当前登录人信息
     @Get('findUser')
-    @Auth([PermissionActionMap.READ])
+    @Auth([PermissionActionMap.WRITE])
     findUser(@Req() req: Request) {
         return req.user;
     }

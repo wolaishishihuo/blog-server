@@ -1,7 +1,8 @@
 import { ActionTypeUnion } from '@/enum/permission';
+import { CustomError } from '@/helper/customError';
 import { PrismaService } from '@/prisma/prisma.service';
 import { RedisService } from '@/redis/redis.service';
-import { CanActivate, ExecutionContext, Injectable } from '@nestjs/common';
+import { CanActivate, ExecutionContext, HttpStatus, Injectable } from '@nestjs/common';
 import { Reflector } from '@nestjs/core';
 
 // 添加类型定义
@@ -23,7 +24,6 @@ export class PermissionGuard implements CanActivate {
             context.getHandler(),
             context.getClass()
         ]);
-
         // 如果没有定义权限要求，默认允许访问
         if (!requiredPermissions?.length) {
             return true;
@@ -49,6 +49,9 @@ export class PermissionGuard implements CanActivate {
             userPermissions = rolePermissions.map((rp) => rp.permission.name);
             await this.redis.listSet(redisKey, userPermissions, 60 * 60 * 24);
         }
-        return requiredPermissions.every((permission) => userPermissions.includes(permission));
+        if (!requiredPermissions.every((permission) => userPermissions.includes(permission))) {
+            throw new CustomError('抱歉哦，您无此权限!', HttpStatus.FORBIDDEN);
+        }
+        return true;
     }
 }

@@ -1,13 +1,15 @@
 import { NestFactory } from '@nestjs/core';
 import { AppModule } from './app.module';
 import { ValidationPipe } from '@nestjs/common';
-import { TransformInterceptor } from './helper/transform.interceptor';
+import { ResponseInterceptor } from './helper/response.interceptor';
+import { ResponseFailFilter } from './helper/responseFail.filter';
 
 async function bootstrap() {
     const app = await NestFactory.create(AppModule);
     app.enableCors();
     app.useGlobalPipes(new ValidationPipe());
-    app.useGlobalInterceptors(new TransformInterceptor());
+    app.useGlobalInterceptors(new ResponseInterceptor());
+    app.useGlobalFilters(new ResponseFailFilter());
     await app.listen(3000);
 }
 bootstrap();
