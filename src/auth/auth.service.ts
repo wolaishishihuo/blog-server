@@ -80,11 +80,7 @@ export class AuthService {
         };
         const token = await this.getToken(payload);
         return {
-            message: '登录成功!',
-            code: HttpStatus.OK,
-            data: {
-                accessToken: token
-            }
+            accessToken: token
         };
     }
 

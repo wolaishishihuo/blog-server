@@ -14,10 +14,14 @@ export interface ApiResponse<T> {
 @Injectable()
 export class TransformInterceptor<T> implements NestInterceptor<T, ApiResponse<T>> {
     intercept(context: ExecutionContext, next: CallHandler): Observable<ApiResponse<T>> {
+        const ctx = context.switchToHttp();
+        const response = ctx.getResponse();
+        // 设置 HTTP 状态码为 200
+        response.status(200);
         return next.handle().pipe(
             map((data) => ({
                 data,
-                code: 0, // 0 表示成功
+                code: response.statusCode, // 0 表示成功
                 message: '请求成功', // 成功信息
                 success: true, // 请求状态
                 timestamp: Date.now() // 响应时间戳
