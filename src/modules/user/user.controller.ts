@@ -1,7 +1,7 @@
 import { Controller, Get, Req } from '@nestjs/common';
 import { UserService } from './user.service';
 import { Request } from 'express';
-import { Auth } from '@/auth/decorators/auth.decorator';
+import { Auth } from '@/modules/auth/decorators/auth.decorator';
 import { PermissionActionMap } from '@/enum/permission';
 
 @Controller('user')

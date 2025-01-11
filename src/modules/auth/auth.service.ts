@@ -1,6 +1,6 @@
 import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
 import { RegisterAuthDto } from './dto/register-auth.dto';
-import { PrismaService } from '@/prisma/prisma.service';
+import { PrismaService } from '@/modules/prisma/prisma.service';
 import * as argon2 from 'argon2';
 import { UserRole } from '@/enum/user';
 import { LoginAuthDto } from './dto/login-auth.dto';
