@@ -26,11 +26,23 @@ export class ThirdPartyController {
 
     @Get('githubCommits')
     async getGithubCommits(@Query('per_page') per_page: number, @Query('page') page: number) {
-        const response = await firstValueFrom(
+        const frontCommits = await firstValueFrom(
             this.httpService.get(
                 `${this.config.githubApiBaseUrl}/${this.config.githubOwner}/${this.config.githubRepo}/commits?per_page=${per_page}&page=${page}`
             )
         );
-        return response.data;
+        const backCommits = await firstValueFrom(
+            this.httpService.get(
+                `${this.config.githubApiBaseUrl}/${this.config.githubOwner}/blog-server/commits?per_page=${per_page}&page=${page}`
+            )
+        );
+        const commits = [...frontCommits.data, ...backCommits.data]
+            .map((item) => ({
+                ...item,
+                // 判断是前端还是后端
+                tag: item.html_url.includes(this.config.githubRepo) ? '1' : '2'
+            }))
+            .sort((a, b) => new Date(b.commit.author.date).getTime() - new Date(a.commit.author.date).getTime());
+        return commits;
     }
 }
