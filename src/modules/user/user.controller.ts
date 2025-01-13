@@ -14,4 +14,15 @@ export class UserController {
     findUser(@UserInfo() user: User) {
         return user;
     }
+    // 获取当前登录人角色信息
+    @Get('findUserRole')
+    findUserRole(@UserInfo('id') userId: number) {
+        return this.userService.findUserRole(userId);
+    }
+
+    // 获取用户列表
+    @Get('findUserList')
+    findUserList() {
+        return this.userService.findUserList();
+    }
 }
