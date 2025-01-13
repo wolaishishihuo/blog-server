@@ -20,7 +20,6 @@ export class AuthService {
 
     async register(registerAuthDto: RegisterAuthDto) {
         const { username, password, email, nickname, confirmPassword } = registerAuthDto;
-
         if (password !== confirmPassword) {
             throw new HttpException('两次密码不一致!', HttpStatus.OK);
         }
