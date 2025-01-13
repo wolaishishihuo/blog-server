@@ -4,10 +4,10 @@ import { CreateTodoDto } from './dto/create-todo.dto';
 import { UpdateTodoDto } from './dto/update-todo.dto';
 import { PermissionActionMap } from '@/enum/permission';
 import { UserInfo } from '../decorators/user.decorator';
-import { Auth } from '@/modules/auth/decorators/auth.decorator';
+import { Auth, Permission } from '@/modules/auth/decorators/auth.decorator';
 
 @Controller('todo')
-@Auth([PermissionActionMap.WRITE])
+@Auth()
 export class TodoController {
     constructor(private readonly todoService: TodoService) {}
 
@@ -19,18 +19,21 @@ export class TodoController {
 
     // 创建待办事项
     @Post('createTodo')
+    @Permission([PermissionActionMap.WRITE])
     createTodo(@Body() todo: CreateTodoDto) {
         return this.todoService.createTodo(todo);
     }
 
     // 更新待办事项
     @Post('updateTodo')
+    @Permission([PermissionActionMap.WRITE])
     updateTodo(@Body() todo: UpdateTodoDto) {
         return this.todoService.updateTodo(todo);
     }
 
     // 删除待办事项
     @Post('deleteTodo')
+    @Permission([PermissionActionMap.WRITE])
     deleteTodo(@Body('id') id: number) {
         console.log(id, 'id');
         return this.todoService.deleteTodo(id);

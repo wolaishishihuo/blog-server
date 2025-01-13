@@ -5,7 +5,7 @@ import * as argon2 from 'argon2';
 import { UserRole } from '@/enum/user';
 import { LoginAuthDto } from './dto/login-auth.dto';
 import { JwtService } from '@nestjs/jwt';
-import { ConfigService, ConfigType } from '@nestjs/config';
+import { ConfigType } from '@nestjs/config';
 import appConfig from '@/config/app';
 
 @Injectable()
@@ -24,13 +24,13 @@ export class AuthService {
             throw new HttpException('两次密码不一致!', HttpStatus.OK);
         }
 
-        const foundUser = await this.prisma.user.findUnique({
+        const foundUser = await this.prisma.user.findFirst({
             where: {
-                username
+                OR: [{ username }, { email }]
             }
         });
         if (foundUser) {
-            throw new HttpException('用户名已存在!', HttpStatus.OK);
+            throw new HttpException('用户名或邮箱已存在!', HttpStatus.OK);
         }
         const hashedPassword = await argon2.hash(password);
 
@@ -52,10 +52,7 @@ export class AuthService {
                 }
             }
         });
-        return {
-            message: '注册成功!',
-            code: HttpStatus.OK
-        };
+        return;
     }
 
     async login(loginAuthDto: LoginAuthDto) {
