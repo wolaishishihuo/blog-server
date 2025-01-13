@@ -9,7 +9,9 @@ const appConfig = registerAs('appConfig', () => ({
     amapKey: process.env.AMAP_KEY,
     githubOwner: process.env.GITHUB_OWNER,
     githubRepo: process.env.GITHUB_REPO,
-    githubApiBaseUrl: process.env.GITHUB_API_BASE_URL
+    githubApiBaseUrl: process.env.GITHUB_API_BASE_URL,
+    redisHost: process.env.REDIS_HOST || 'localhost',
+    redisPort: parseInt(process.env.REDIS_PORT || '6379')
 }));
 
 export default appConfig;

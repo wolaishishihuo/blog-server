@@ -9,7 +9,9 @@ async function bootstrap() {
     app.enableCors();
     app.useGlobalPipes(
         new ValidationPipe({
+            // 只验证请求体中的属性，不验证请求头和路径参数
             whitelist: true,
+            // 将请求体中的属性转换为相应的类型
             transform: true
         })
     );

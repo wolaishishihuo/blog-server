@@ -1,0 +1,62 @@
+services:
+  nest-app:
+    container_name: nest-app
+    build:
+      context: ./
+      dockerfile: ./Dockerfile
+    depends_on:
+      mysql-container:
+        condition: service_healthy
+      redis-container:
+        condition: service_healthy
+     # 定义项目环境变量
+    environment:
+      - NODE_ENV=production
+      - LOG_LEVEL=info
+      - JWT_SECRET=vue3-blog-server
+      - JWT_EXPIRATION_TIME=1h
+      - JWT_REFRESH_EXPIRATION_TIME=7d
+      - AMAP_KEY=5101582d67647dd57024b7c1fcdd0d6f
+      - GITHUB_OWNER=wolaishishihuo
+      - GITHUB_REPO=my-vue3-app
+      - GITHUB_API_BASE_URL=https://api.github.com/repos
+      - DATABASE_URL=mysql://root:adminroot@mysql-container:3306/nest
+      - REDIS_HOST=redis-container
+      - REDIS_PORT=6379
+    ports:
+      - '3000:3000'
+    networks: 
+      - common-network
+  mysql-container:
+    container_name: mysql-container
+    image: mysql
+    volumes:
+      - /Users/Jiazhigang/Desktop/my-event/vue3-app-container/mysql:/var/lib/mysql
+    environment:
+      MYSQL_DATABASE: nest
+      MYSQL_ROOT_PASSWORD: adminroot
+    ports:
+      - '3306:3306'
+    healthcheck:
+      test: ["CMD", "mysql", "-h", "localhost", "-u", "root", "-padminroot", "-e", "SELECT 1"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+      start_period: 10s
+    networks: 
+      - common-network
+  redis-container:
+    container_name: redis-container
+    image: redis
+    volumes:
+      - /Users/Jiazhigang/Desktop/my-event/vue3-app-container/redis:/data
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+    networks: 
+      - common-network
+networks:
+  common-network:
+    driver: bridge

@@ -69,7 +69,7 @@ async function main() {
     });
 
     // 创建角色
-    const roles = [];
+    const roles: { id: number; name: string }[] = [];
     for (const config of roleConfigs) {
         const role = await prisma.role.create({
             data: {
