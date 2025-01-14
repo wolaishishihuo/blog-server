@@ -11,7 +11,9 @@ const appConfig = registerAs('appConfig', () => ({
     githubRepo: process.env.GITHUB_REPO,
     githubApiBaseUrl: process.env.GITHUB_API_BASE_URL,
     redisHost: process.env.REDIS_HOST,
-    redisPort: process.env.REDIS_PORT
+    redisPort: process.env.REDIS_PORT,
+    emailUser: process.env.EMAIL_USER,
+    emailPass: process.env.EMAIL_PASS
 }));
 
 export default appConfig;

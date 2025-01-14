@@ -8,6 +8,7 @@ import { PrismaModule } from './modules/prisma/prisma.module';
 import { RedisModule } from './modules/redis/redis.module';
 import { HttpModule } from '@nestjs/axios';
 import { ThirdPartyModule } from './modules/third-party/third-party.module';
+import { EmailModule } from './modules/email/email.module';
 
 @Module({
     imports: [
@@ -21,7 +22,8 @@ import { ThirdPartyModule } from './modules/third-party/third-party.module';
             global: true,
             // 请求超时时间
             timeout: 3000
-        })
+        }),
+        EmailModule
     ]
 })
 export class AppModule {}
