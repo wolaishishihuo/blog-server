@@ -13,7 +13,7 @@ const appConfig = registerAs('appConfig', () => ({
     redisHost: process.env.REDIS_HOST,
     redisPort: process.env.REDIS_PORT,
     emailUser: process.env.EMAIL_USER,
-    emailPass: process.env.EMAIL_PASS
+    emailPass: process.env.EMAIL_PASSWORD
 }));
-
+console.log(appConfig());
 export default appConfig;

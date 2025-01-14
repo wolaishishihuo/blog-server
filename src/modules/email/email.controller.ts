@@ -6,8 +6,12 @@ export class EmailController {
     constructor(private readonly emailService: EmailService) {}
 
     @Post('send')
-    async sendEmail(@Body() body: { to: string; subject: string; text: string }) {
-        await this.emailService.sendEmail(body.to, body.subject, body.text);
+    async sendEmail(@Body('address') address: string) {
+        // 生成5位数字验证码
+        const code = Math.floor(Math.random() * 100000)
+            .toString()
+            .padStart(5, '0');
+        await this.emailService.sendEmail(address, '登录验证码', `您的验证码是：${code}`);
         return {
             message: 'Email sent successfully'
         };

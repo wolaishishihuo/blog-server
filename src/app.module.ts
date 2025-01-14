@@ -16,14 +16,14 @@ import { EmailModule } from './modules/email/email.module';
         UserModule,
         PrismaModule,
         ThirdPartyModule,
-        ConfigModule.forRoot({ isGlobal: true, load: [...config], envFilePath: envFilePath }),
         RedisModule,
         HttpModule.register({
             global: true,
             // 请求超时时间
             timeout: 3000
         }),
-        EmailModule
+        EmailModule,
+        ConfigModule.forRoot({ isGlobal: true, load: [...config], envFilePath: envFilePath })
     ]
 })
 export class AppModule {}
