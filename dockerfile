@@ -1,6 +1,12 @@
-FROM node:20-alpine AS build-stage
+FROM node:22.13.0-slim AS build-stage
 
 WORKDIR /app
+
+# Install OpenSSL and other required dependencies
+RUN apt-get update -y && \
+    apt-get install -y openssl && \
+    apt-get clean && \
+    rm -rf /var/lib/apt/lists/*
 
 # 设置 npm 镜像源
 RUN npm config set registry https://registry.npmmirror.com/
@@ -23,23 +29,30 @@ COPY . .
 RUN pnpm run build
 
 # production stage
-FROM node:20-alpine AS production-stage
+FROM node:22.13.0-slim AS production-stage
 
 WORKDIR /app
 
+# Install OpenSSL in production stage
+RUN apt-get update -y && \
+    apt-get install -y openssl && \
+    apt-get clean && \
+    rm -rf /var/lib/apt/lists/*
+
 # 复制构建产物和必要文件
-COPY --from=build-stage /app/dist /app/dist
-COPY --from=build-stage /app/node_modules /app/node_modules
-COPY --from=build-stage /app/prisma /app/prisma
-COPY --from=build-stage /app/package.json /app/package.json
+COPY --from=0 /app/dist /app/dist
+COPY --from=0 /app/node_modules /app/node_modules
+COPY --from=0 /app/prisma /app/prisma
+COPY --from=0 /app/package.json /app/package.json
 
 # 创建启动脚本
 RUN echo '#!/bin/sh' > /app/start.sh && \
-    echo 'set -e' >> /app/start.sh && \               
-    echo 'npx prisma migrate deploy || exit 1' >> /app/start.sh && \ 
-    echo 'node dist/prisma/seed.js || exit 1' >> /app/start.sh && \   
+    echo 'set -e' >> /app/start.sh && \
+    echo 'npx prisma generate' >> /app/start.sh && \
+    echo 'npx prisma migrate deploy' >> /app/start.sh && \
+    echo 'node dist/prisma/seed.js' >> /app/start.sh && \
     echo 'node dist/src/main.js' >> /app/start.sh && \
-    chmod +x /app/start.sh                           
+    chmod +x /app/start.sh
 
 EXPOSE 3000
 

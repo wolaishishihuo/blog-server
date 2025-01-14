@@ -48,6 +48,8 @@ services:
   redis-container:
     container_name: redis-container
     image: redis
+    ports:
+      - '6379:6379'
     volumes:
       - /Users/Jiazhigang/Desktop/my-event/vue3-app-container/redis:/data
     healthcheck:
