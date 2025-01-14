@@ -9,21 +9,14 @@ services:
         condition: service_healthy
       redis-container:
         condition: service_healthy
-     # 定义项目环境变量
+    env_file:
+      - ./dist/.env
     environment:
-      - NODE_ENV=production
-      - SEED_VERSION=v1
-      - LOG_LEVEL=info
-      - JWT_SECRET=vue3-blog-server
-      - JWT_EXPIRATION_TIME=1h
-      - JWT_REFRESH_EXPIRATION_TIME=7d
-      - AMAP_KEY=5101582d67647dd57024b7c1fcdd0d6f
-      - GITHUB_OWNER=wolaishishihuo
-      - GITHUB_REPO=my-vue3-app
-      - GITHUB_API_BASE_URL=https://api.github.com/repos
-      - DATABASE_URL=mysql://root:adminroot@mysql-container:3306/nest
-      - REDIS_HOST=redis-container
-      - REDIS_PORT=6379
+      NODE_ENV: production
+      DATABASE_URL: mysql://root:${MYSQL_ROOT_PASSWORD}@mysql-container:3306/${MYSQL_DATABASE}
+      REDIS_HOST: redis-container
+      REDIS_PORT: 6379
+      LOG_LEVEL: info
     ports:
       - '3000:3000'
     networks: 
@@ -34,8 +27,8 @@ services:
     volumes:
       - /Users/Jiazhigang/Desktop/my-event/vue3-app-container/mysql:/var/lib/mysql
     environment:
-      MYSQL_DATABASE: nest
-      MYSQL_ROOT_PASSWORD: adminroot
+      MYSQL_DATABASE: ${MYSQL_DATABASE}
+      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD}
     ports:
       - '3306:3306'
     healthcheck:

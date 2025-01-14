@@ -8,7 +8,7 @@ import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 async function bootstrap() {
     try {
         const app = await NestFactory.create(AppModule);
-        const port = process.env.NEST_PORT || 3000;
+        const port = process.env.API_PORT || 3000;
 
         // 启用跨域
         app.enableCors();
@@ -41,8 +41,6 @@ async function bootstrap() {
         SwaggerModule.setup('api-docs', app, document);
 
         await app.listen(port);
-        console.log(`✅ Application is running on: http://localhost:${port}`);
-        console.log(`📚 Swagger documentation is available at: http://localhost:${port}/api-docs`);
     } catch (error) {
         console.error('❌ Failed to start the application:', error);
         if (error.message?.includes('ECONNREFUSED')) {
