@@ -15,6 +15,5 @@ export class LoginAuthDto {
         minLength: 5
     })
     @IsNotEmpty({ message: '密码不能为空' })
-    @MinLength(5, { message: '密码长度不能小于5位' })
     password: string;
 }

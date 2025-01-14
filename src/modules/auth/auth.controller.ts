@@ -12,8 +12,7 @@ export class AuthController {
     @ApiOperation({ summary: '用户注册' })
     @ApiResponse({
         status: 200,
-        description: '注册成功',
-        type: RegisterAuthDto
+        description: '注册成功'
     })
     @Post('register')
     register(@Body() registerAuthDto: RegisterAuthDto) {
