@@ -25,21 +25,19 @@ async function bootstrap() {
 
     // 启用swagger
     const config = new DocumentBuilder()
-        .setTitle('vue3App API')
-        .setDescription('API 文档')
+        .setTitle('后台管理系统 API 文档')
+        .setDescription('API description')
         .setVersion('1.0')
         .addBearerAuth()
+        .addTag('auth', '认证相关')
+        .addTag('user', '用户相关')
+        .addTag('todo', '待办事项')
+        .addTag('third-party', '第三方服务')
         .build();
-
     const document = SwaggerModule.createDocument(app, config);
-    SwaggerModule.setup('api-docs', app, document, {
-        swaggerOptions: {
-            persistAuthorization: true
-        },
-        customSiteTitle: 'Vue3App API Documentation'
-    });
+    SwaggerModule.setup('api-docs', app, document);
 
     // 启动服务
-    await app.listen(3000);
+    await app.listen(process.env.NEST_PORT);
 }
 bootstrap();

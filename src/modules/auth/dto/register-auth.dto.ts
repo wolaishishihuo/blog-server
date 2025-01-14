@@ -1,7 +1,6 @@
 import { PartialType } from '@nestjs/mapped-types';
 import { LoginAuthDto } from './login-auth.dto';
 import { IsEmail, IsNotEmpty, IsOptional, MaxLength, MinLength, ValidateIf } from 'class-validator';
-
 export class RegisterAuthDto extends PartialType(LoginAuthDto) {
     @IsNotEmpty({ message: '用户名不能为空' })
     @MaxLength(10, { message: '用户名长度不能大于10位' })

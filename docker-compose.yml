@@ -12,6 +12,7 @@ services:
      # 定义项目环境变量
     environment:
       - NODE_ENV=production
+      - SEED_VERSION=v1
       - LOG_LEVEL=info
       - JWT_SECRET=vue3-blog-server
       - JWT_EXPIRATION_TIME=1h

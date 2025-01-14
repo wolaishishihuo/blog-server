@@ -3,18 +3,30 @@ import { UserService } from './user.service';
 import { Auth } from '@/modules/auth/decorators/auth.decorator';
 import { UserInfo } from './decorators/user.decorator';
 import { User } from '@prisma/client';
+import { ApiTags, ApiBearerAuth, ApiOperation, ApiResponse } from '@nestjs/swagger';
 
+@ApiTags('user')
+@ApiBearerAuth()
 @Controller('user')
 @Auth()
 export class UserController {
     constructor(private readonly userService: UserService) {}
 
-    // 获取当前登录人信息
+    @ApiOperation({ summary: '获取当前登录用户信息' })
+    @ApiResponse({
+        status: 200,
+        description: '获取成功'
+    })
     @Get('findUser')
     findUser(@UserInfo() user: User) {
         return user;
     }
-    // 获取当前登录人角色信息
+
+    @ApiOperation({ summary: '获取当前用户角色信息' })
+    @ApiResponse({
+        status: 200,
+        description: '获取成功'
+    })
     @Get('findUserRole')
     findUserRole(@UserInfo('id') userId: number) {
         return this.userService.findUserRole(userId);

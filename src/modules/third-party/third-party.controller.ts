@@ -3,7 +3,9 @@ import { HttpService } from '@nestjs/axios';
 import { Controller, Get, Inject, Ip, Param, Query } from '@nestjs/common';
 import { ConfigType } from '@nestjs/config';
 import { firstValueFrom } from 'rxjs';
+import { ApiTags, ApiOperation, ApiResponse, ApiQuery } from '@nestjs/swagger';
 
+@ApiTags('third-party')
 @Controller('thirdParty')
 export class ThirdPartyController {
     @Inject(HttpService)
@@ -11,6 +13,18 @@ export class ThirdPartyController {
     @Inject(appConfig.KEY)
     private readonly config: ConfigType<typeof appConfig>;
 
+    @ApiOperation({ summary: '获取天气信息' })
+    @ApiResponse({
+        status: 200,
+        description: '获取成功',
+        schema: {
+            properties: {
+                weather: { type: 'string' },
+                temperature: { type: 'string' },
+                city: { type: 'string' }
+            }
+        }
+    })
     @Get('weather')
     async getWeather() {
         const location = await firstValueFrom(
@@ -24,6 +38,13 @@ export class ThirdPartyController {
         return weatherInfo.data.lives[0];
     }
 
+    @ApiOperation({ summary: '获取Github提交记录' })
+    @ApiResponse({
+        status: 200,
+        description: '获取成功'
+    })
+    @ApiQuery({ name: 'per_page', description: '每页数量' })
+    @ApiQuery({ name: 'page', description: '页码' })
     @Get('githubCommits')
     async getGithubCommits(@Query('per_page') per_page: number, @Query('page') page: number) {
         const frontCommits = await firstValueFrom(

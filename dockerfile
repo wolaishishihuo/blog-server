@@ -4,7 +4,7 @@ WORKDIR /app
 
 # Install OpenSSL and other required dependencies
 RUN apt-get update -y && \
-    apt-get install -y openssl && \
+    apt-get install -y --no-install-recommends openssl && \
     apt-get clean && \
     rm -rf /var/lib/apt/lists/*
 
@@ -12,8 +12,8 @@ RUN apt-get update -y && \
 RUN npm config set registry https://registry.npmmirror.com/
 
 # 安装 pnpm 并设置 pnpm 镜像源
-RUN npm install -g pnpm \
-    && pnpm config set registry https://registry.npmmirror.com/
+RUN npm install -g pnpm && \
+    pnpm config set registry https://registry.npmmirror.com/
 
 # 复制 package.json 和 pnpm-lock.yaml
 COPY package.json pnpm-lock.yaml ./
@@ -33,22 +33,21 @@ FROM node:22.13.0-slim AS production-stage
 
 WORKDIR /app
 
-# Install OpenSSL in production stage
+# Install OpenSSL for Prisma Client runtime
 RUN apt-get update -y && \
-    apt-get install -y openssl && \
+    apt-get install -y --no-install-recommends openssl && \
     apt-get clean && \
     rm -rf /var/lib/apt/lists/*
 
 # 复制构建产物和必要文件
-COPY --from=0 /app/dist /app/dist
-COPY --from=0 /app/node_modules /app/node_modules
-COPY --from=0 /app/prisma /app/prisma
-COPY --from=0 /app/package.json /app/package.json
+COPY --from=build-stage /app/dist /app/dist
+COPY --from=build-stage /app/node_modules /app/node_modules
+COPY --from=build-stage /app/prisma /app/prisma
+COPY --from=build-stage /app/package.json /app/package.json
 
 # 创建启动脚本
 RUN echo '#!/bin/sh' > /app/start.sh && \
     echo 'set -e' >> /app/start.sh && \
-    echo 'npx prisma generate' >> /app/start.sh && \
     echo 'npx prisma migrate deploy' >> /app/start.sh && \
     echo 'node dist/prisma/seed.js' >> /app/start.sh && \
     echo 'node dist/src/main.js' >> /app/start.sh && \
