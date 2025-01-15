@@ -15,5 +15,4 @@ const appConfig = registerAs('appConfig', () => ({
     emailUser: process.env.EMAIL_USER,
     emailPass: process.env.EMAIL_PASSWORD
 }));
-console.log(appConfig());
 export default appConfig;

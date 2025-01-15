@@ -7,7 +7,6 @@ export class EmailService {
     private transporter: Transporter;
 
     constructor(private readonly configService: ConfigService) {
-        console.log(this.configService.get('appConfig.emailPass'));
         this.transporter = createTransport({
             host: 'smtp.qq.com',
             port: 465,
@@ -32,7 +31,6 @@ export class EmailService {
             };
 
             const info = await this.transporter.sendMail(mailOptions);
-            console.log('Message sent: %s', info.messageId);
             return info;
         } catch (error) {
             console.error('Email sending error:', error);

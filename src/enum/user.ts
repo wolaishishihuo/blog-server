@@ -20,3 +20,8 @@ export enum TodoPriority {
     MEDIUM,
     HIGH
 }
+
+export enum LoginType {
+    EMAIL = 'email',
+    PASSWORD = 'password'
+}

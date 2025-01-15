@@ -2,17 +2,20 @@ import { HttpException, HttpStatus, Inject, Injectable } from '@nestjs/common';
 import { RegisterAuthDto } from './dto/register-auth.dto';
 import { PrismaService } from '@/modules/prisma/prisma.service';
 import * as argon2 from 'argon2';
-import { UserRole } from '@/enum/user';
+import { LoginType, UserRole } from '@/enum/user';
 import { LoginAuthDto } from './dto/login-auth.dto';
 import { JwtService } from '@nestjs/jwt';
 import { ConfigType } from '@nestjs/config';
 import appConfig from '@/config/app';
+import { RedisService } from '../redis/redis.service';
+import { User } from '../user/entities/user.entity';
 
 @Injectable()
 export class AuthService {
     constructor(
         private readonly prisma: PrismaService,
-        private readonly jwtService: JwtService
+        private readonly jwtService: JwtService,
+        private readonly redisService: RedisService
     ) {}
 
     @Inject(appConfig.KEY)
@@ -55,25 +58,39 @@ export class AuthService {
         return;
     }
 
-    async login(loginAuthDto: LoginAuthDto) {
-        const { username, password } = loginAuthDto;
+    private async validatePasswordLogin(user: User, password: string): Promise<void> {
+        const isPasswordValid = await argon2.verify(user.password, password);
+        if (!isPasswordValid) {
+            throw new HttpException('用户名或密码错误!', HttpStatus.OK);
+        }
+    }
 
-        const foundUser = await this.prisma.user.findUnique({
+    private async validateCodeLogin(email: string, code: string): Promise<void> {
+        const redisCode = await this.redisService.get(`email_code_${email}`);
+        if (code !== redisCode) {
+            throw new HttpException('验证码错误或已过期!', HttpStatus.OK);
+        }
+    }
+
+    async login(loginAuthDto: LoginAuthDto) {
+        const { username, password, loginType, emailCode, email } = loginAuthDto;
+
+        const foundUser = await this.prisma.user.findFirst({
             where: {
-                username
+                OR: [{ username }, { email }]
             }
         });
 
         if (!foundUser) {
-            throw new HttpException('用户名或密码错误!', HttpStatus.OK);
+            throw new HttpException('用户名或邮箱或密码错误!', HttpStatus.OK);
         }
 
-        const isPasswordValid =
-            foundUser.username === 'admin' ? true : await argon2.verify(foundUser.password, password);
-
-        if (!isPasswordValid) {
-            throw new HttpException('用户名或密码错误!', HttpStatus.OK);
+        if (loginType === LoginType.PASSWORD) {
+            await this.validatePasswordLogin(foundUser, password);
+        } else {
+            await this.validateCodeLogin(email, emailCode);
         }
+
         const payload = {
             username: foundUser.username,
             sub: foundUser.id
